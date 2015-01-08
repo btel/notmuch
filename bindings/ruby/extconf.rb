@@ -5,13 +5,13 @@
 
 require 'mkmf'
 
-dir = File.join('..', '..', 'lib')
+dir = '/usr/local/Cellar/notmuch/0.18.1/lib/' 
 
 # includes
-$INCFLAGS = "-I#{dir} #{$INCFLAGS}"
+$INCFLAGS = "-I#{$INCFLAGS} -I/usr/local/Cellar/ruby/2.2.0/include/ruby-2.2.0/x86_64-darwin14/"
 
 # make sure there are no undefined symbols
-$LDFLAGS += ' -Wl,--no-undefined'
+$LDFLAGS += ''
 
 def have_local_library(lib, path, func, headers = nil)
   checking_for checking_message(func, lib) do
@@ -22,7 +22,7 @@ def have_local_library(lib, path, func, headers = nil)
   end
 end
 
-if not have_local_library('libnotmuch.so', dir, 'notmuch_database_create', 'notmuch.h')
+if not have_local_library('libnotmuch.dylib', dir, 'notmuch_database_create', 'notmuch.h')
   exit 1
 end
 

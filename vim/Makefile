@@ -1,6 +1,6 @@
 prefix = $(HOME)/.vim
 
-INSTALL = install -v -D -m644
+INSTALL = install -v -m644
 D = $(DESTDIR)
 
 all:
