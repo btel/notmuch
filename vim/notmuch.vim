@@ -345,8 +345,13 @@ ruby << EOF
 		VIM::command("syntax region nmShowMsg#{i}Desc start='\\%%%il' end='\\%%%il' contains=@nmShowMsgDesc" % [msg.start, msg.start + 1])
 		VIM::command("syntax region nmShowMsg#{i}Head start='\\%%%il' end='\\%%%il' contains=@nmShowMsgHead" % [msg.start + 1, msg.body_start])
 		VIM::command("syntax region nmShowMsg#{i}Body start='\\%%%il' end='\\%%%dl' contains=@nmShowMsgBody" % [msg.body_start, msg.end])
+		VIM::command("syntax region nmShowMsg#{i}Fold start='\\%%%il' end='\\%%%dl' contains=nmShowMsg#{i}Body,nmShowMsg#{i}Head,nmShowMsg#{i}Desc fold" % [msg.start, msg.end])
 	end
+	VIM::command("g/^.*(.*unread.*)$/normal zo")
+	VIM::command("nohl")
+	VIM::command("normal gg/unread/1") 
 EOF
+    set foldmethod=syntax
 	setlocal nomodifiable
 	call s:set_map(g:notmuch_show_maps)
 endfunction
@@ -966,5 +971,6 @@ EOF
 endfunction
 
 command -nargs=* NotMuch call s:NotMuch(<f-args>)
+set foldtext=v:folddashes.substitute(getline(v:foldstart),'{{{','','g')
 
 " vim: set noexpandtab:
