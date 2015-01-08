@@ -39,7 +39,8 @@ let g:notmuch_show_maps = {
 	\ 'p':		'show_save_patches()',
 	\ 'r':		'show_reply()',
 	\ '?':		'show_info()',
-	\ '<Tab>':	'show_next_msg()',
+	\ '<Tab>':	'show_next_msg(1)',
+	\ '<S-Tab>':	'show_next_msg(-1)',
 	\ 'c':		'compose()',
 	\ }
 
@@ -114,15 +115,18 @@ EOF
 	call s:kill_this_buffer()
 endfunction
 
-function! s:show_next_msg()
+function! s:show_next_msg(inc)
 ruby << EOF
+	inc = VIM::evaluate('a:inc')
 	r, c = $curwin.cursor
 	n = $curbuf.line_number
 	i = $messages.index { |m| n >= m.start && n <= m.end }
-	m = $messages[i + 1]
-	if m
+	m = $messages[i + inc]
+	if m and !((i + inc)<0) 
 		r = m.body_start + 1
+		VIM::command("normal zM")
 		VIM::command("normal #{m.start}zt")
+		VIM::command("normal zo")
 		$curwin.cursor = r, c
 	end
 EOF
