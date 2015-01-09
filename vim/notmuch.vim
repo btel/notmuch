@@ -92,9 +92,16 @@ function! s:compose_send()
 
 ruby << EOF
 	# Generate proper mail to send
-	text = VIM::evaluate('lines').join("\n")
-	fname = VIM::evaluate('fname')
+	text = VIM::evaluate('lines')
+	attached_filenames = text.reverse.take_while { |line| line.start_with?("Attachment:") }
+	text = text.reverse.drop_while { |line| line.start_with?("Attachment:") } . reverse
+	text = text.join("\n")
 	transport = Mail.new(text)
+	attached_filenames.each do |afname|
+	    transport.add_file(afname[11..-1].strip)
+	end
+	    
+	fname = VIM::evaluate('fname')
 	transport.message_id = generate_message_id
 	transport.charset = 'utf-8'
 	File.write(fname, transport.to_s)
