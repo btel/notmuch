@@ -110,6 +110,9 @@ EOF
 		echohl None
 		return
 	endif
+
+	call s:save_to_sent(fname)
+
 	call delete(fname)
 	echo 'Mail sent successfully.'
 	call s:kill_this_buffer()
@@ -255,6 +258,20 @@ function! s:folders_refresh()
 	ruby $curbuf.reopen
 	ruby folders_render()
 	setlocal nomodifiable
+endfunction
+
+function! s:save_to_sent(fname)
+ruby << EOF
+    if $sent_dirs
+		fname = VIM::evaluate('a:fname')
+		m = Mail.read(fname)
+		from_address = m.from[0]
+		sent_box = $sent_dirs[from_address]
+		if sent_box
+			system "notmuch insert --folder:#{sent_box} +sent < #{fname}"
+		end
+	end
+EOF
 endfunction
 
 "" basic
@@ -508,6 +525,8 @@ ruby << EOF
 		$email = "%s <%s>" % [$email_name, $email_address]
 		ignore_tags = get_config_item('search.exclude_tags')
 		$exclude_tags = ignore_tags.split("\n")
+		sent_dirs_config = get_config_item('vim.sent_dirs')
+		$sent_dirs = Hash[sent_dirs_config.split("\n").collect{|x| x.strip.split("=>")}]
 	end
 
 	def vim_puts(s)
@@ -706,6 +725,7 @@ ruby << EOF
 			q.destroy!
 		end
 	end
+
 
 	module DbHelper
 		def init(name)
