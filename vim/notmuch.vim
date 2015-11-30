@@ -97,6 +97,9 @@ ruby << EOF
 	text = text.reverse.drop_while { |line| line.start_with?("Attachment:") } . reverse
 	text = text.join("\n")
 	transport = Mail.new(text)
+	if transport[:bcc]
+		transport[:bcc].include_in_headers = true
+	end
 	attached_filenames.each do |afname|
 	    transport.add_file(afname[11..-1].strip)
 	end
@@ -600,6 +603,9 @@ ruby << EOF
 			end
 			m.cc = orig[:cc]
 			m.from = $email
+			if not ((m.cc.include? $email_address) or (m.to.include? $email_address))
+				m.bcc = $email
+			end
 			m.charset = 'utf-8'
 		end
 
@@ -642,7 +648,7 @@ ruby << EOF
 		cur = lines.count
 
 		lines << "Cc: "
-		lines << "Bcc: "
+		lines << "Bcc: #{$email}"
 		lines << "Subject: "
 		lines << ""
 		lines << ""
