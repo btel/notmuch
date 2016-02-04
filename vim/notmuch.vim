@@ -598,7 +598,7 @@ ruby << EOF
 	def open_reply(orig)
 		reply = orig.reply do |m|
 			# fix headers
-			if not m[:reply_to]
+			if not orig[:reply_to]
 				m.to = [orig[:from].to_s, orig[:to].to_s]
 			end
 			m.cc = orig[:cc]
